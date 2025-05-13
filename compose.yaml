@@ -1,0 +1,18 @@
+services:
+  wso2:
+    image: wso2/wso2am:4.3.0
+    ports:
+      - "9443:9443"
+      - "8280:8280"
+      - "8243:8243"
+    environment:
+      - JAVA_OPTS=-Dorg.apache.axis2.transport.http.ssl.disableHostnameVerification=true
+  api:
+    image: adenilsonkon/api-python-medical:latest
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    expose:
+      - "8000"

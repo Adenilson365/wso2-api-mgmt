@@ -1,0 +1,10 @@
+services:
+  api:
+    image: adenilsonkon/api-python-medical:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    expose:
+      - "8000"
