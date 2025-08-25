@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   wso2:
     image: wso2/wso2am:4.3.0
@@ -7,6 +9,10 @@ services:
       - "8243:8243"
     environment:
       - JAVA_OPTS=-Dorg.apache.axis2.transport.http.ssl.disableHostnameVerification=true
+    volumes:
+      - ./deployment.toml:/home/wso2carbon/wso2am-4.3.0/repository/conf/deployment.toml
+      - ./compose.yaml:/home/wso2carbon/wso2am-4.3.0/repository/conf/compose.yaml
+
   api:
     image: adenilsonkon/api-python-medical:latest
     build:
