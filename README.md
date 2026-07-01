@@ -11,6 +11,12 @@
 
 ### Kubernetes
 
+- k3d
+
+```
+k3d cluster create wso2 -a 1 -p "80:30000" -p "443:30001"
+```
+
 -Instale o helm e o kubectl, se ainda não estiverem instalados. Em seguida, execute o seguinte comando para instalar o WSO2 usando o Helm:
 
 ```shell
