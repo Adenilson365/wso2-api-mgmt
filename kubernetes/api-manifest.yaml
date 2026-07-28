@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: medical-api
-          image: adenilsonkon/api-python-medical:latest
+          image: adenilsonkon/api-python-medical:openapi
           ports:
             - containerPort: 8000
           resources:
@@ -30,7 +30,7 @@ spec:
             limits:
               memory: "128Mi"
               cpu: "500m"
-      pullPolicy: Always
+
 ---
 apiVersion: v1
 kind: Service
@@ -53,8 +53,12 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: traefik
+  tls:
+    - hosts:
+        - medical-api.konzelmann.com.br
+      secretName: medical-api-tls
   rules:
-    - host: medical-api.test
+    - host: medical-api.konzelmann.com.br
       http:
         paths:
           - path: /
