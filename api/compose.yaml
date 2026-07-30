@@ -4,7 +4,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8443
+      SSL_CERTFILE: /tls/tls.crt
+      SSL_KEYFILE: /tls/tls.key
     ports:
-      - "8000:8000"
-    expose:
-      - "8000"
+      - "8443:8443"
+    volumes:
+      - ./certs:/tls:ro

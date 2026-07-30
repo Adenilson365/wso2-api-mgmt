@@ -1,0 +1,102 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: medical-api
+  namespace: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: medical-api
+  template:
+    metadata:
+      labels:
+        app: medical-api
+    spec:
+      containers:
+        - name: medical-api
+          image: adenilsonkon/api-python-medical:openapi-tls
+          env:
+            - name: HOST
+              value: "0.0.0.0"
+            - name: PORT
+              value: "8443"
+            - name: SSL_CERTFILE
+              value: /tls/tls.crt
+            - name: SSL_KEYFILE
+              value: /tls/tls.key
+          ports:
+            - containerPort: 8443
+          volumeMounts:
+            - name: medical-api-tls
+              mountPath: /tls
+              readOnly: true
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+      volumes:
+        - name: medical-api-tls
+          secret:
+            secretName: medical-api-tls
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: medical-api-transport
+  namespace: api
+spec:
+  serverName: medical-api.konzelmann.com.br
+  insecureSkipVerify: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: medical-api-service
+  namespace: api
+  annotations:
+    traefik.ingress.kubernetes.io/service.serversscheme: https
+    traefik.ingress.kubernetes.io/service.serverstransport: api-medical-api-transport@kubernetescrd
+spec:
+  selector:
+    app: medical-api
+  ports:
+    - protocol: TCP
+      port: 8443
+      targetPort: 8443
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: medical-api-ingress
+  namespace: api
+  annotations:
+    traefik.ingress.kubernetes.io/service.serversscheme: https
+    traefik.ingress.kubernetes.io/service.insecureSkipVerify: "true"
+    traefik.ingress.kubernetes.io/service.serverstransport: api-medical-api-transport@kubernetescrd
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - medical-api.konzelmann.com.br
+      secretName: medical-api-tls
+  rules:
+    - host: medical-api.konzelmann.com.br
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: medical-api-service
+                port:
+                  number: 8443
